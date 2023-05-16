@@ -8,5 +8,5 @@ public interface Mapper {
 
     EndpointHit toEndpointHit(HitEntity hitEntity);
 
-    HitEntity toHitEntity (EndpointHit endpointHit);
+    HitEntity toHitEntity(EndpointHit endpointHit);
 }
