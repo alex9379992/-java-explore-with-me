@@ -3,9 +3,9 @@ package ru.practicum.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.EndpointHit;
-import ru.practicum.ViewStats;
 import ru.practicum.service.StatsService;
+import ru.practicum.stat.EndpointHit;
+import ru.practicum.stat.ViewStats;
 
 
 import javax.validation.Valid;

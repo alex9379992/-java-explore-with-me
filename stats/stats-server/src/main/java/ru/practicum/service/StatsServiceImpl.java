@@ -2,10 +2,10 @@ package ru.practicum.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.EndpointHit;
-import ru.practicum.ViewStats;
 import ru.practicum.mapper.Mapper;
 import ru.practicum.repository.HitRepository;
+import ru.practicum.stat.EndpointHit;
+import ru.practicum.stat.ViewStats;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
