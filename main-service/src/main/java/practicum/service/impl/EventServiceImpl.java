@@ -109,19 +109,13 @@ public class EventServiceImpl implements EventService {
     public EventDto getEventById(Long eventId, HttpServletRequest request) {
         EventEntity event = eventRepository.findEventByIdAndStatePublished(eventId)
                 .orElseThrow(() -> new NotFoundException("Такого события нет " + eventId));
-
         log.info("client ip: {}", request.getRemoteAddr());
         log.info("endpoint path: {}", request.getRequestURI());
         stateClient.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-
         Long views = stateClient.getStatisticsByEventId(eventId);
-
         EventDto eventDto = eventMapper.toFullDto(event);
         eventDto.setViews(views);
-
-
         return eventDto;
-
     }
 
     @Transactional

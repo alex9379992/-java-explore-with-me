@@ -2,7 +2,6 @@ package ru.practicum.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import ru.practicum.exception.ValidationException;
 import ru.practicum.repository.HitRepository;
 import ru.practicum.stat.EndpointHit;
@@ -13,7 +12,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import static ru.practicum.util.Constants.dateTimeFormatter;
 
 
@@ -25,7 +23,7 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public void saveHit(EndpointHit endpointHit) {
-            repository.save(HitMapper.toEntity(endpointHit));
+        repository.save(HitMapper.toEntity(endpointHit));
     }
 
 

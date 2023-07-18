@@ -49,7 +49,7 @@ public class CategoryServiceImpl implements CategoriesService {
     @Override
     public CategoryDto addCategory(CategoryDto category) {
         if (categoryRepository.existsByName(category.getName())) {
-            throw new AlreadyExistsException("Категория с таким именем уже существует: " + category.getName());
+            throw new RuntimeException("Категория с таким именем уже существует: " + category.getName());
         }
         CategoryEntity savedCategory = categoryRepository.save(categoryMapper.toEntity(category));
         return categoryMapper.toDto(savedCategory);
