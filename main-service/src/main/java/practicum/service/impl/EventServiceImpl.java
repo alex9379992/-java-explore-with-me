@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import practicum.exception.AlreadyExistsException;
 import practicum.exception.NotFoundException;
 import practicum.exception.RequestDeniedException;
 import practicum.model.CategoryEntity;
@@ -25,6 +26,7 @@ import ru.practicum.event.EventDto;
 import ru.practicum.event.NewEventDto;
 import ru.practicum.event.State;
 import ru.practicum.event.UpdateEventRequest;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -45,6 +47,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final StateClient stateClient;
+    private final EventMapper eventMapper = new EventMapper();
 
     @Override
     public List<EventDto> getEvents(String text, List<Long> categoriesIds, Boolean paid, String rangeStart,
@@ -57,6 +60,9 @@ public class EventServiceImpl implements EventService {
         if (rangeStart != null && rangeEnd != null) {
             start = LocalDateTime.parse(rangeStart, dateTimeFormatter);
             end = LocalDateTime.parse(rangeEnd, dateTimeFormatter);
+            if (start.isAfter(end)) {
+                throw new RequestDeniedException("Wrong dates");
+            }
         } else {
             if (rangeStart == null && rangeEnd == null) {
                 start = LocalDateTime.now();
@@ -74,6 +80,9 @@ public class EventServiceImpl implements EventService {
         final PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by(EventsSortedBy.EVENT_DATE.equals(sortedBy) ? "eventDate" : "views"));
         List<EventEntity> eventEntities = eventRepository.searchPublishedEvents(categoriesIds, paid, start, end,
                 pageRequest).getContent();
+        log.info("client ip: {}", request.getRemoteAddr());
+        log.info("endpoint path: {}", request.getRequestURI());
+        stateClient.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
 
         if (eventEntities.isEmpty()) {
             return Collections.emptyList();
@@ -89,7 +98,7 @@ public class EventServiceImpl implements EventService {
         Set<Long> eventIds = eventEntities.stream().filter(eventEntityPredicate).map(EventEntity::getId).collect(Collectors.toSet());
         Map<Long, Long> viewStatsMap = stateClient.getSetViewsByEventId(eventIds);
 
-        List<EventDto> events = eventEntities.stream().map(EventMapper::toPublicApiDto).collect(Collectors.toList());
+        List<EventDto> events = eventEntities.stream().map(eventMapper::toShortDto).collect(Collectors.toList());
         events.forEach(eventFullDto ->
                 eventFullDto.setViews(viewStatsMap.getOrDefault(eventFullDto.getId(), 0L)));
         return events;
@@ -103,13 +112,14 @@ public class EventServiceImpl implements EventService {
 
         log.info("client ip: {}", request.getRemoteAddr());
         log.info("endpoint path: {}", request.getRequestURI());
+        stateClient.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
 
         Long views = stateClient.getStatisticsByEventId(eventId);
 
-        EventDto eventDto = EventMapper.toPublicApiDto(event);
+        EventDto eventDto = eventMapper.toFullDto(event);
         eventDto.setViews(views);
 
-        stateClient.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+
         return eventDto;
 
     }
@@ -128,13 +138,13 @@ public class EventServiceImpl implements EventService {
                     eventToUpdate.setState(State.PUBLISHED);
                     eventToUpdate.setPublishedOn(LocalDateTime.now());
                 } else {
-                    throw new RequestDeniedException("Событие можно публиковать, только если оно в состоянии ожидания публикации" +
+                    throw new AlreadyExistsException("Событие можно публиковать, только если оно в состоянии ожидания публикации" +
                             event.getStateAction());
                 }
             }
             if (event.getStateAction().equals("REJECT_EVENT")) {
                 if (eventToUpdate.getState().equals(State.PUBLISHED)) {
-                    throw new RequestDeniedException("Событие можно отклонить, только если оно еще не опубликовано" +
+                    throw new AlreadyExistsException("Событие можно отклонить, только если оно еще не опубликовано " +
                             event.getStateAction());
                 }
                 eventToUpdate.setState(State.CANCELED);
@@ -143,7 +153,7 @@ public class EventServiceImpl implements EventService {
         updateEventEntity(event, eventToUpdate);
 
         eventRepository.save(eventToUpdate);
-        return EventMapper.toPublicApiDto(eventToUpdate);
+        return eventMapper.toPublicApiDto(eventToUpdate);
     }
 
     @Override
@@ -153,7 +163,7 @@ public class EventServiceImpl implements EventService {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size);
         if (states == null & rangeStart == null & rangeEnd == null) {
-            return eventRepository.findAll().stream().map(EventMapper::toPublicApiDto).collect(Collectors.toList());
+            return eventRepository.findAll(pageRequest).stream().map(eventMapper::toFullDto).collect(Collectors.toList());
         }
 
         List<State> stateList = states.stream().map(State::valueOf).collect(Collectors.toList());
@@ -173,16 +183,25 @@ public class EventServiceImpl implements EventService {
         }
 
         if (userIds.size() != 0 && states.size() != 0 && categories.size() != 0) {
-            Page<EventEntity> eventsWithPage = eventRepository.findAllWithAllParameters(userIds, stateList, categories, start, end,
-                    pageRequest);
-            return eventsWithPage.getContent().stream().map(EventMapper::toPublicApiDto).collect(Collectors.toList());
+            return findEventDtosWithAllParameters(userIds, categories, pageRequest, stateList, start, end);
         }
         if (userIds.size() == 0 && categories.size() != 0) {
-            Page<EventEntity> eventsWithPage = eventRepository.findAllEventsWithoutIdList(categories, stateList, start, end, pageRequest);
-            return eventsWithPage.getContent().stream().map(EventMapper::toPublicApiDto).collect(Collectors.toList());
+            return findEventDtosWithAllParameters(userIds, categories, pageRequest, stateList, start, end);
         } else {
             return new ArrayList<>();
         }
+    }
+
+    private List<EventDto> findEventDtosWithAllParameters(List<Long> userIds, List<Long> categories, PageRequest pageRequest, List<State> stateList, LocalDateTime start, LocalDateTime end) {
+        Page<EventEntity> eventsWithPage = eventRepository.findAllWithAllParameters(userIds, stateList, categories, start, end,
+                pageRequest);
+        Set<Long> eventIds = eventsWithPage.stream().map(EventEntity::getId).collect(Collectors.toSet());
+        Map<Long, Long> viewStatsMap = stateClient.getSetViewsByEventId(eventIds);
+
+        List<EventDto> events = eventsWithPage.stream().map(eventMapper::toFullDto).collect(Collectors.toList());
+        events.forEach(eventFullDto ->
+                eventFullDto.setViews(viewStatsMap.getOrDefault(eventFullDto.getId(), 0L)));
+        return events;
     }
 
     @Transactional
@@ -190,7 +209,7 @@ public class EventServiceImpl implements EventService {
     public EventDto createEvent(Long userId, NewEventDto event) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Такого пользователя нет " + userId));
         validateTime(event.getEventDate());
-        EventEntity eventToSave = EventMapper.toEntity(event);
+        EventEntity eventToSave = eventMapper.toEntity(event);
         eventToSave.setState(State.PENDING);
         eventToSave.setConfirmedRequests(0L);
         eventToSave.setCreatedOn(LocalDateTime.now());
@@ -199,7 +218,7 @@ public class EventServiceImpl implements EventService {
         eventToSave.setCategory(category);
         eventToSave.setInitiator(user);
         EventEntity saved = eventRepository.save(eventToSave);
-        return EventMapper.toFullDto(saved);
+        return eventMapper.toFullDto(saved);
     }
 
     @Override
@@ -208,7 +227,7 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Такого пользователя нет");
         }
         EventEntity event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Такого события нет"));
-        return EventMapper.toFullDto(event);
+        return eventMapper.toFullDto(event);
     }
 
     @Override
@@ -218,7 +237,7 @@ public class EventServiceImpl implements EventService {
         }
         Page<EventEntity> eventsWithPage = eventRepository.findAllByUserWithPage(userId, PageRequest.of(from / size, size));
         List<EventEntity> events = eventsWithPage.getContent();
-        return events.stream().map(EventMapper::toShortDto).collect(Collectors.toList());
+        return events.stream().map(eventMapper::toShortDto).collect(Collectors.toList());
     }
 
     @Transactional
@@ -238,13 +257,13 @@ public class EventServiceImpl implements EventService {
                 eventFromDb.setState(State.CANCELED);
             }
         } else {
-            throw new RequestDeniedException("Изменить можно только отмененные события или события в состоянии ожидания модерации, " +
+            throw new AlreadyExistsException("Изменить можно только отмененные события или события в состоянии ожидания модерации, " +
                     "статус события = " + eventFromDb.getState());
         }
 
         updateEventEntity(event, eventFromDb);
         eventRepository.save(eventFromDb);
-        return EventMapper.toFullDto(eventFromDb);
+        return eventMapper.toFullDto(eventFromDb);
     }
 
     private void validateTime(LocalDateTime start) {

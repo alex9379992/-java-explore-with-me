@@ -29,16 +29,17 @@ public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
+    private final CompilationMapper compilationMapper = new CompilationMapper();
 
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
         Page<CompilationEntity> compilationEntities = compilationRepository.findAllByPinned(pinned, PageRequest.of(from / size, size, Sort.by("id")));
-        return compilationEntities.stream().map(CompilationMapper::toDto).collect(Collectors.toList());
+        return compilationEntities.stream().map(compilationMapper::toDto).collect(Collectors.toList());
     }
 
     public CompilationDto getCompilationById(Long id) {
         CompilationEntity compilation = compilationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Такой подборки нет " + id));
-        return CompilationMapper.toDto(compilation);
+        return compilationMapper.toDto(compilation);
     }
 
     @Transactional
@@ -47,14 +48,14 @@ public class CompilationServiceImpl implements CompilationService {
         if (compilation.getEvents() != null && compilation.getEvents().size() != 0) {
             Set<Long> eventIds = compilation.getEvents();
             Set<EventEntity> events = new HashSet<>(eventRepository.findAllByIdIn(eventIds));
-            CompilationEntity compilationEntity = CompilationMapper.toEntity(compilation);
+            CompilationEntity compilationEntity = compilationMapper.toEntity(compilation);
             compilationEntity.setEvents(events);
             CompilationEntity savedCompil = compilationRepository.save(compilationEntity);
-            return CompilationMapper.toDto(savedCompil);
+            return compilationMapper.toDto(savedCompil);
         }
-        CompilationEntity fromDto = CompilationMapper.toEntity(compilation);
+        CompilationEntity fromDto = compilationMapper.toEntity(compilation);
         CompilationEntity savedCompil = compilationRepository.save(fromDto);
-        return CompilationMapper.toDto(savedCompil);
+        return compilationMapper.toDto(savedCompil);
     }
 
     @Transactional
@@ -71,7 +72,7 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest compilation) {
         CompilationEntity compilationFromDb = compilationRepository.findById(compId).orElseThrow(() ->
                 new NotFoundException("Такой подборки нет " + compId));
-        if (compilation.getEvents().size() != 0) {
+        if (compilation.getEvents() != null && !compilation.getEvents().isEmpty()) {
             Set<Long> eventIds = compilation.getEvents();
             Set<EventEntity> events = new HashSet<>(eventRepository.findAllByIdIn(eventIds));
             compilationFromDb.setEvents(events);
@@ -83,6 +84,6 @@ public class CompilationServiceImpl implements CompilationService {
             compilationFromDb.setTitle(compilation.getTitle());
         }
         CompilationEntity updated = compilationRepository.save(compilationFromDb);
-        return CompilationMapper.toDto(updated);
+        return compilationMapper.toDto(updated);
     }
 }

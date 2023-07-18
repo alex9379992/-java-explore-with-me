@@ -3,6 +3,7 @@ package practicum.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import practicum.exception.AlreadyExistsException;
@@ -14,6 +15,7 @@ import practicum.util.UserMapper;
 import ru.practicum.user.UserDto;
 
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper = new UserMapper();
 
     @Transactional
     @Override
@@ -29,25 +32,23 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByName(user.getName())) {
             throw new AlreadyExistsException("Пользователь с таким именем уже существует: " + user.getName());
         }
-        UserEntity savedUser = userRepository.save(UserMapper.toEntity(user));
-        return UserMapper.toDto(savedUser);
+        UserEntity savedUser = userRepository.save(userMapper.toEntity(user));
+        return userMapper.toDto(savedUser);
     }
 
 
     @Override
     public List<UserDto> getUsers(List<Long> userIds, Integer from, Integer size) {
-        if (size != 0) {
-            return getUsersWithPage(userIds, from, size);
-        }
-        List<UserEntity> users = userRepository.findAllByUserIdIn(userIds);
-        return users.stream().map(UserMapper::toDto).collect(Collectors.toList());
+        PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by("id").ascending());
+        List<UserEntity> users = userRepository.findAllByUserIdIn(pageRequest, userIds).getContent();
+        return users.stream().map(userMapper::toDto).sorted(Comparator.comparing(UserDto::getId)).collect(Collectors.toList());
     }
 
     @Override
     public List<UserDto> getUsersWithPage(List<Long> userIds, Integer from, Integer size) {
         final PageRequest pageRequest = PageRequest.of(from / size, size);
         Page<UserEntity> users = userRepository.findAllByUserIdIn(pageRequest, userIds);
-        return users.stream().map(UserMapper::toDto).collect(Collectors.toList());
+        return users.stream().map(userMapper::toDto).collect(Collectors.toList());
     }
 
 

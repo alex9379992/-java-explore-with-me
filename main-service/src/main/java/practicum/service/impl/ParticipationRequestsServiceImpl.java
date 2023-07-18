@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import practicum.exception.AlreadyExistsException;
 import practicum.exception.NotFoundException;
-import practicum.exception.RequestDeniedException;
 import practicum.model.EventEntity;
 import practicum.model.ParticipationRequestEntity;
 import practicum.model.UserEntity;
@@ -19,9 +18,11 @@ import ru.practicum.request.EventRequestStatusUpdateRequest;
 import ru.practicum.request.EventRequestStatusUpdateResult;
 import ru.practicum.request.ParticipationRequestDto;
 
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +34,7 @@ public class ParticipationRequestsServiceImpl implements RequestService {
     private final EventRepository eventsRepository;
 
     private final ParticipationRequestsRepository participationRequestsRepository;
+    private final ParticipationRequestMapper participationRequestMapper = new ParticipationRequestMapper();
 
     @Transactional
     @Override
@@ -42,32 +44,31 @@ public class ParticipationRequestsServiceImpl implements RequestService {
         EventEntity event = eventsRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Такого события нет "
                 + eventId));
         ParticipationRequestEntity request = new ParticipationRequestEntity(LocalDateTime.now(), event, requester, State.PENDING);
-        List<ParticipationRequestEntity> requests = participationRequestsRepository.findAllByRequesterIdAndEventId(userId, eventId);
+        Optional<ParticipationRequestEntity> requests = participationRequestsRepository.findByRequesterIdAndEventId(userId, eventId);
+        if (requests.isPresent()) {
+            throw new AlreadyExistsException("Нельзя добавить повторный запрос: userId {}, eventId {} " + userId + eventId);
+        }
         if (event.getInitiator().getId().equals(userId)) {
-            throw new RequestDeniedException("Инициатор события не может добавить запрос на участие в своём событии " + userId);
+            throw new AlreadyExistsException("Инициатор события не может добавить запрос на участие в своём событии " + userId);
         }
         if (!(event.getState().equals(State.PUBLISHED))) {
-            throw new RequestDeniedException("Нельзя участвовать в неопубликованном событии");
+            throw new AlreadyExistsException("Нельзя участвовать в неопубликованном событии");
         }
         int limit = event.getParticipantLimit();
         if (limit != 0) {
             if (limit == event.getConfirmedRequests()) {
-                throw new RequestDeniedException("У события достигнут лимит запросов на участие: " + limit);
+                throw new AlreadyExistsException("У события достигнут лимит запросов на участие: " + limit);
             }
+        } else {
+            request.setState(State.CONFIRMED);
         }
 
-        if (requests.isEmpty()) {
-            if (!event.getRequestModeration()) {
-                request.setState(State.CONFIRMED);
-                event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-            } else {
-                request.setState(State.PENDING);
-            }
-            ParticipationRequestEntity savedRequest = participationRequestsRepository.save(request);
-            return ParticipationRequestMapper.toDto(savedRequest);
-        } else {
-            throw new AlreadyExistsException("Нельзя добавить повторный запрос: userId {}, eventId {} " + userId + eventId);
+        if (!event.getRequestModeration()) {
+            request.setState(State.CONFIRMED);
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         }
+        ParticipationRequestEntity savedRequest = participationRequestsRepository.save(request);
+        return participationRequestMapper.toDto(savedRequest);
     }
 
 
@@ -77,7 +78,7 @@ public class ParticipationRequestsServiceImpl implements RequestService {
             throw new NotFoundException("Такого пользователя нет");
         }
         List<ParticipationRequestEntity> requests = participationRequestsRepository.findAllByRequesterIdInForeignEvents(userId);
-        return requests.stream().map(ParticipationRequestMapper::toDto).collect(Collectors.toList());
+        return requests.stream().map(participationRequestMapper::toDto).collect(Collectors.toList());
     }
 
 
@@ -90,7 +91,7 @@ public class ParticipationRequestsServiceImpl implements RequestService {
             throw new NotFoundException("Такого события нет");
         }
         List<ParticipationRequestEntity> requests = participationRequestsRepository.findAllUserRequestsInEvent(userId, eventId);
-        return requests.stream().map(ParticipationRequestMapper::toDto).collect(Collectors.toList());
+        return requests.stream().map(participationRequestMapper::toDto).collect(Collectors.toList());
     }
 
 
@@ -103,7 +104,7 @@ public class ParticipationRequestsServiceImpl implements RequestService {
         ParticipationRequestEntity request = participationRequestsRepository.findById(requestId).orElseThrow(() ->
                 new NotFoundException("Такой заявки нет " + requestId));
         request.setState(State.CANCELED);
-        return ParticipationRequestMapper.toDto(participationRequestsRepository.save(request));
+        return participationRequestMapper.toDto(participationRequestsRepository.save(request));
     }
 
 
@@ -120,7 +121,7 @@ public class ParticipationRequestsServiceImpl implements RequestService {
             throw new AlreadyExistsException("Подтверждение заявки не требуется " + eventId);
         }
         if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
-            throw new RequestDeniedException("Превышен лимит подтвержденных заявок " + eventId);
+            throw new AlreadyExistsException("Превышен лимит подтвержденных заявок " + eventId);
         }
 
         List<Long> requestIds = request.getRequestIds();
@@ -158,9 +159,9 @@ public class ParticipationRequestsServiceImpl implements RequestService {
         participationRequestsRepository.saveAll(updatedRequests);
         eventsRepository.save(event);
 
-        List<ParticipationRequestDto> con = confirmedRequests.stream().map(ParticipationRequestMapper::toDto).collect(Collectors.toList());
-        List<ParticipationRequestDto> rej = rejectedRequests.stream().map(ParticipationRequestMapper::toDto).collect(Collectors.toList());
+        List<ParticipationRequestDto> con = confirmedRequests.stream().map(participationRequestMapper::toDto).collect(Collectors.toList());
+        List<ParticipationRequestDto> rej = rejectedRequests.stream().map(participationRequestMapper::toDto).collect(Collectors.toList());
 
-        return ParticipationRequestMapper.toUpdateResult(con, rej);
+        return participationRequestMapper.toUpdateResult(con, rej);
     }
 }

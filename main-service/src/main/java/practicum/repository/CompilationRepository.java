@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import practicum.model.CompilationEntity;
 
+
 @Repository
 public interface CompilationRepository extends JpaRepository<CompilationEntity, Long> {
     @Query("SELECT e FROM CompilationEntity e " +

@@ -3,17 +3,17 @@ package practicum.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import practicum.exception.AlreadyExistsException;
-import practicum.exception.ErrorResponse;
 import practicum.exception.NotFoundException;
 import practicum.exception.RequestDeniedException;
+import ru.practicum.exception.ErrorResponse;
+
 
 import javax.validation.ConstraintViolationException;
 import java.util.Date;
-import java.util.Map;
 
 
 @ControllerAdvice
@@ -21,62 +21,74 @@ import java.util.Map;
 public class ControllerExceptionHandler {
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleNotFoundException(NotFoundException exception) {
-        Map<String, String> result = Map.of("Ошибка:", exception.getMessage());
-        log.warn(String.valueOf(result), exception, exception.getMessage());
-        return result;
+    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                new Date(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                e.getMessage()
+        );
+        log.warn(e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleRequestDeniedException(RequestDeniedException exception) {
-        Map<String, String> result = Map.of("Ошибка:", exception.getMessage());
-        log.warn(String.valueOf(result), exception, exception.getMessage());
-        return result;
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleAlreadyExistsException(AlreadyExistsException exception) {
-        Map<String, String> result = Map.of("Ошибка:", exception.getMessage());
-        log.warn(String.valueOf(result), exception, exception.getMessage());
-        return result;
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleAlreadyExistException(DataIntegrityViolationException e) {
-        log.error(e.getMessage());
-        return new ErrorResponse(
+    public ResponseEntity<ErrorResponse> handleRequestDeniedException(RequestDeniedException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
                 new Date(),
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 e.getMessage()
         );
+        log.warn(e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConstraintException(ConstraintViolationException e) {
-        log.error(e.getMessage());
-        return new ErrorResponse(
+    public ResponseEntity<ErrorResponse> handleAlreadyExistsException(AlreadyExistsException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
                 new Date(),
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 e.getMessage()
         );
+        log.warn(e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleRuntimeException(RuntimeException e) {
-        log.error(e.getMessage());
-        return new ErrorResponse(
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
                 new Date(),
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 e.getMessage()
         );
+        log.warn(e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleConstraintException(ConstraintViolationException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                new Date(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                e.getMessage()
+        );
+        log.warn(e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                new Date(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                e.getMessage()
+        );
+        log.warn(e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

@@ -6,7 +6,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import practicum.model.ParticipationRequestEntity;
 
+
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ParticipationRequestsRepository extends JpaRepository<ParticipationRequestEntity, Long> {
@@ -14,7 +16,7 @@ public interface ParticipationRequestsRepository extends JpaRepository<Participa
     @Query("SELECT p FROM ParticipationRequestEntity p " +
             "WHERE p.requester.id = :userId " +
             "AND p.event.id = :eventId")
-    List<ParticipationRequestEntity> findAllByRequesterIdAndEventId(@Param("userId") Long userId, @Param("eventId") Long eventId);
+    Optional<ParticipationRequestEntity> findByRequesterIdAndEventId(@Param("userId") Long userId, @Param("eventId") Long eventId);
 
 
     @Query("SELECT p FROM ParticipationRequestEntity p " +
