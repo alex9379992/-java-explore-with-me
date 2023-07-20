@@ -1,7 +1,8 @@
 package practicum.model;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
@@ -9,7 +10,8 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "categories")
-@Data
+@Getter
+@Setter
 @RequiredArgsConstructor
 public class CategoryEntity {
     @Id

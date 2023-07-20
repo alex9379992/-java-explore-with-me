@@ -31,13 +31,20 @@ public class StateClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> saveHit(String app, String uri, String ip, LocalDateTime timestamp) {
+    public ResponseEntity<Object> saveHit(String app,
+                                          String uri,
+                                          String ip,
+                                          LocalDateTime timestamp) {
         EndpointHit endpointHitDto = new EndpointHit(app, uri, ip, timestamp);
         return post("/hit", endpointHitDto);
     }
 
     public ResponseEntity<Object> getStatistics(String start, String end, String uris, Boolean unique) {
-        Map<String, Object> parameters = Map.of("start", start, "end", end, "uris", uris, "unique", unique
+        Map<String, Object> parameters = Map.of(
+                "start", start,
+                "end", end,
+                "uris", uris,
+                "unique", unique
         );
         return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
     }
@@ -47,9 +54,10 @@ public class StateClient extends BaseClient {
                 "start", LocalDateTime.now().minusYears(1000).format(dateTimeFormatter),
                 "end", LocalDateTime.now().plusYears(1000).format(dateTimeFormatter),
                 "uris", List.of("/events/" + eventId),
-                "unique", Boolean.FALSE
+                "unique", Boolean.TRUE
         );
         ResponseEntity<Object> response = get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+
         List<ViewStats> viewStatsList = response.hasBody() ? mapper.convertValue(response.getBody(), mapType) : Collections.emptyList();
         return viewStatsList != null && !viewStatsList.isEmpty() ? viewStatsList.get(0).getHits() : 0L;
     }
@@ -62,6 +70,7 @@ public class StateClient extends BaseClient {
                 "unique", Boolean.FALSE
         );
         ResponseEntity<Object> response = get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+
         return response.hasBody() ? mapper.convertValue(response.getBody(), mapType).stream()
                 .collect(Collectors.toMap(
                         this::getEventIdFromURI, ViewStats::getHits))
@@ -71,9 +80,4 @@ public class StateClient extends BaseClient {
     private Long getEventIdFromURI(ViewStats e) {
         return Long.parseLong(e.getUri().substring(e.getUri().lastIndexOf("/") + 1));
     }
-
-    private String toString(List<String> strings) {
-        return Arrays.toString(strings.toArray()).replace("[", "").replace("]", "");
-    }
-
 }
