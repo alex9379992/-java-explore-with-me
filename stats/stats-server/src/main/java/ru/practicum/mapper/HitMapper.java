@@ -1,4 +1,4 @@
-package ru.practicum.util;
+package ru.practicum.mapper;
 
 
 import ru.practicum.model.HitEntity;
