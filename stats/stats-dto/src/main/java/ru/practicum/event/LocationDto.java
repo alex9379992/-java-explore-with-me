@@ -1,7 +1,6 @@
 package ru.practicum.event;
 
 import lombok.*;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 

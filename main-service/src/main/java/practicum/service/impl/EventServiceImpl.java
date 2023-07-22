@@ -26,14 +26,11 @@ import ru.practicum.event.EventDto;
 import ru.practicum.event.NewEventDto;
 import ru.practicum.event.State;
 import ru.practicum.event.UpdateEventRequest;
-
-
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import static ru.practicum.stat.Constants.dateTimeFormatter;
 
 
@@ -50,11 +47,11 @@ public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper = new EventMapper();
 
     @Override
-    public List<EventDto> getEvents(String text, List<Long> categoriesIds, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable, EventsSortedBy sortedBy, Integer from, Integer size, HttpServletRequest request) {
-
+    public List<EventDto> getEvents(String text, List<Long> categoriesIds, Boolean paid, String rangeStart,
+                                    String rangeEnd, Boolean onlyAvailable, EventsSortedBy sortedBy, Integer from,
+                                    Integer size, HttpServletRequest request) {
         LocalDateTime start = null;
         LocalDateTime end = null;
-
         if (rangeStart != null && rangeEnd != null) {
             start = LocalDateTime.parse(rangeStart, dateTimeFormatter);
             end = LocalDateTime.parse(rangeEnd, dateTimeFormatter);
@@ -74,28 +71,24 @@ public class EventServiceImpl implements EventService {
                 }
             }
         }
-
         final PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by(EventsSortedBy.EVENT_DATE.equals(sortedBy) ? "eventDate" : "views"));
         List<EventEntity> eventEntities = eventRepository.searchPublishedEvents(categoriesIds, paid, start, end, pageRequest).getContent();
         log.info("client ip: {}", request.getRemoteAddr());
         log.info("endpoint path: {}", request.getRequestURI());
         stateClient.saveHit("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
-
         if (eventEntities.isEmpty()) {
             return Collections.emptyList();
         }
         Predicate<EventEntity> eventEntityPredicate;
         if (text != null && !text.isEmpty()) {
-            eventEntityPredicate = eventEntity -> eventEntity.getAnnotation().toLowerCase().contains(text.toLowerCase()) || eventEntity.getDescription().toLowerCase().contains(text.toLowerCase());
+            eventEntityPredicate = eventEntity -> eventEntity.getAnnotation().toLowerCase().contains(text.toLowerCase())
+                    || eventEntity.getDescription().toLowerCase().contains(text.toLowerCase());
         } else {
             eventEntityPredicate = eventEntity -> true;
         }
-
         Set<Long> eventIds = eventEntities.stream().filter(eventEntityPredicate).map(EventEntity::getId).collect(Collectors.toSet());
-        Map<Long, Long> viewStatsMap = stateClient.getSetViewsByEventId(eventIds);
-
         List<EventDto> events = eventEntities.stream().map(eventMapper::toShortDto).collect(Collectors.toList());
-        events.forEach(eventFullDto -> eventFullDto.setViews(viewStatsMap.getOrDefault(eventFullDto.getId(), 0L)));
+        events.forEach(eventFullDto -> eventFullDto.setViews(getSetViews(eventIds).getOrDefault(eventFullDto.getId(), 0L)));
         return events;
     }
 
@@ -136,19 +129,20 @@ public class EventServiceImpl implements EventService {
             }
         }
         updateEventEntity(event, eventToUpdate);
-
         eventRepository.save(eventToUpdate);
         return eventMapper.toPublicApiDto(eventToUpdate);
     }
 
     @Override
-    public List<EventDto> searchEvents(List<Long> userIds, List<String> states, List<Long> categories, String rangeStart, String rangeEnd, Integer from, Integer size, HttpServletRequest request) {
+    public List<EventDto> searchEvents(List<Long> userIds, List<String> states, List<Long> categories, String rangeStart,
+                                       String rangeEnd, Integer from, Integer size, HttpServletRequest request) {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size);
         if (states == null & rangeStart == null & rangeEnd == null) {
             return eventRepository.findAll(pageRequest).stream().map(eventMapper::toFullDto).collect(Collectors.toList());
         }
 
+        assert states != null;
         List<State> stateList = states.stream().map(State::valueOf).collect(Collectors.toList());
 
         LocalDateTime start;
@@ -175,14 +169,17 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private List<EventDto> findEventDtosWithAllParameters(List<Long> userIds, List<Long> categories, PageRequest pageRequest, List<State> stateList, LocalDateTime start, LocalDateTime end) {
+    private List<EventDto> findEventDtosWithAllParameters(List<Long> userIds, List<Long> categories, PageRequest pageRequest,
+                                                          List<State> stateList, LocalDateTime start, LocalDateTime end) {
         Page<EventEntity> eventsWithPage = eventRepository.findAllWithAllParameters(userIds, stateList, categories, start, end, pageRequest);
         Set<Long> eventIds = eventsWithPage.stream().map(EventEntity::getId).collect(Collectors.toSet());
-        Map<Long, Long> viewStatsMap = stateClient.getSetViewsByEventId(eventIds);
-
         List<EventDto> events = eventsWithPage.stream().map(eventMapper::toFullDto).collect(Collectors.toList());
-        events.forEach(eventFullDto -> eventFullDto.setViews(viewStatsMap.getOrDefault(eventFullDto.getId(), 0L)));
+        events.forEach(eventFullDto -> eventFullDto.setViews(getSetViews(eventIds).getOrDefault(eventFullDto.getId(), 0L)));
         return events;
+    }
+
+    private  Map<Long, Long> getSetViews (Set<Long> eventIds) {
+        return  stateClient.getSetViewsByEventId(eventIds);
     }
 
     @Transactional
@@ -194,7 +191,6 @@ public class EventServiceImpl implements EventService {
         eventToSave.setState(State.PENDING);
         eventToSave.setConfirmedRequests(0L);
         eventToSave.setCreatedOn(LocalDateTime.now());
-
         CategoryEntity category = categoryRepository.findById(event.getCategory()).orElseThrow(() -> new NotFoundException("Такой категории нет"));
         eventToSave.setCategory(category);
         eventToSave.setInitiator(user);
@@ -236,9 +232,9 @@ public class EventServiceImpl implements EventService {
                 eventFromDb.setState(State.CANCELED);
             }
         } else {
-            throw new AlreadyExistsException("Изменить можно только отмененные события или события в состоянии ожидания модерации, " + "статус события = " + eventFromDb.getState());
+            throw new AlreadyExistsException("Изменить можно только отмененные события" +
+                    " или события в состоянии ожидания модерации, " + "статус события = " + eventFromDb.getState());
         }
-
         updateEventEntity(event, eventFromDb);
         eventRepository.save(eventFromDb);
         return eventMapper.toFullDto(eventFromDb);
@@ -257,7 +253,8 @@ public class EventServiceImpl implements EventService {
         eventToUpdate.setDescription(Objects.requireNonNullElse(event.getDescription(), eventToUpdate.getDescription()));
         eventToUpdate.setEventDate(Objects.requireNonNullElse(event.getEventDate(), eventToUpdate.getEventDate()));
         eventToUpdate.setLocation(event.getLocation() == null ? eventToUpdate.getLocation() :
-                locationRepository.findByLatAndLon(event.getLocation().getLat(), event.getLocation().getLon()).orElse(new LocationEntity(null, event.getLocation().getLat(), event.getLocation().getLon())));
+                locationRepository.findByLatAndLon(event.getLocation().getLat(), event.getLocation().getLon())
+                        .orElse(new LocationEntity(null, event.getLocation().getLat(), event.getLocation().getLon())));
         eventToUpdate.setPaid(Objects.requireNonNullElse(event.getPaid(), eventToUpdate.getPaid()));
         eventToUpdate.setParticipantLimit(Objects.requireNonNullElse(event.getParticipantLimit(), eventToUpdate.getParticipantLimit()));
         eventToUpdate.setRequestModeration(Objects.requireNonNullElse(event.getRequestModeration(), eventToUpdate.getRequestModeration()));

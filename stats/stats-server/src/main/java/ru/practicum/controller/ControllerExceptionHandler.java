@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.practicum.exception.ErrorResponse;
 import ru.practicum.exception.ValidationException;
-
-
 import java.util.Date;
 
 @ControllerAdvice

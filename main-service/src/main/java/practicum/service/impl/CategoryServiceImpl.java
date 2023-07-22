@@ -12,8 +12,6 @@ import practicum.repository.EventRepository;
 import practicum.service.CategoriesService;
 import practicum.util.CategoryMapper;
 import ru.practicum.category.CategoryDto;
-
-
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;

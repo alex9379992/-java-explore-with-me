@@ -3,8 +3,6 @@ package practicum.util;
 import practicum.model.CompilationEntity;
 import ru.practicum.compilation.CompilationDto;
 import ru.practicum.compilation.NewCompilationDto;
-
-
 import java.util.HashSet;
 import java.util.stream.Collectors;
 

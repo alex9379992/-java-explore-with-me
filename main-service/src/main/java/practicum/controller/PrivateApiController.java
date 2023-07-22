@@ -13,8 +13,6 @@ import ru.practicum.event.UpdateEventRequest;
 import ru.practicum.request.EventRequestStatusUpdateRequest;
 import ru.practicum.request.EventRequestStatusUpdateResult;
 import ru.practicum.request.ParticipationRequestDto;
-
-
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;

@@ -2,7 +2,6 @@ package ru.practicum.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 

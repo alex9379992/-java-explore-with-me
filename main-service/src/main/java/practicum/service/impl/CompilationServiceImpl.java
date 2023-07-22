@@ -15,8 +15,6 @@ import practicum.util.CompilationMapper;
 import ru.practicum.compilation.CompilationDto;
 import ru.practicum.compilation.NewCompilationDto;
 import ru.practicum.compilation.UpdateCompilationRequest;
-
-
 import javax.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
@@ -50,8 +48,8 @@ public class CompilationServiceImpl implements CompilationService {
             Set<EventEntity> events = new HashSet<>(eventRepository.findAllByIdIn(eventIds));
             CompilationEntity compilationEntity = compilationMapper.toEntity(compilation);
             compilationEntity.setEvents(events);
-            CompilationEntity savedCompil = compilationRepository.save(compilationEntity);
-            return compilationMapper.toDto(savedCompil);
+            CompilationEntity savedCompilation = compilationRepository.save(compilationEntity);
+            return compilationMapper.toDto(savedCompilation);
         }
         CompilationEntity fromDto = compilationMapper.toEntity(compilation);
         CompilationEntity savedCompil = compilationRepository.save(fromDto);
@@ -65,7 +63,6 @@ public class CompilationServiceImpl implements CompilationService {
                 new NotFoundException("Такой подборки нет " + compId));
         compilationRepository.deleteById(compId);
     }
-
 
     @Transactional
     @Override

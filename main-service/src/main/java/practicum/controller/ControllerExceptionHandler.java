@@ -10,8 +10,6 @@ import practicum.exception.AlreadyExistsException;
 import practicum.exception.NotFoundException;
 import practicum.exception.RequestDeniedException;
 import ru.practicum.exception.ErrorResponse;
-
-
 import javax.validation.ConstraintViolationException;
 import java.util.Date;
 

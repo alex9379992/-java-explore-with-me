@@ -5,19 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import practicum.service.CategoriesService;
-import practicum.service.CompilationService;
-import practicum.service.EventService;
-import practicum.service.UserService;
+import practicum.service.*;
 import ru.practicum.category.CategoryDto;
+import ru.practicum.comment.CommentDto;
 import ru.practicum.compilation.CompilationDto;
 import ru.practicum.compilation.NewCompilationDto;
 import ru.practicum.compilation.UpdateCompilationRequest;
 import ru.practicum.event.EventDto;
 import ru.practicum.event.UpdateEventRequest;
 import ru.practicum.user.UserDto;
-
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
@@ -33,6 +29,7 @@ public class AdminController {
     private final CompilationService compilationService;
     private final EventService eventService;
     private final UserService userService;
+    private final CommentService commentService;
 
     @PostMapping("/categories")
     @ResponseStatus(HttpStatus.CREATED)
@@ -41,14 +38,12 @@ public class AdminController {
         return ResponseEntity.created(URI.create("/categories")).body(categoriesService.addCategory(category));
     }
 
-
     @DeleteMapping("/categories/{catId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(@PathVariable Long catId) {
         log.debug("Admin API: Вызван метод deleteCategory " + catId);
         categoriesService.deleteCategory(catId);
     }
-
 
     @PatchMapping("/categories/{catId}")
     public ResponseEntity<CategoryDto> updateCategory(@RequestBody CategoryDto category, @PathVariable Long catId) {
@@ -82,7 +77,6 @@ public class AdminController {
         return ResponseEntity.created(URI.create("/users")).body(userService.addUser(user));
     }
 
-
     @GetMapping("/users")
     public ResponseEntity<List<UserDto>> getUsers(@RequestParam(name = "ids", required = false) List<Long> userIds,
                                                   @RequestParam(name = "from", defaultValue = "0")
@@ -91,14 +85,12 @@ public class AdminController {
         return ResponseEntity.ok().body(userService.getUsers(userIds, from, size));
     }
 
-
     @DeleteMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long userId) {
         log.debug("Admin: Вызван метод deleteUser " + userId);
         userService.deleteUser(userId);
     }
-
 
     @PostMapping("/compilations")
     @ResponseStatus(HttpStatus.CREATED)
@@ -107,7 +99,6 @@ public class AdminController {
         return ResponseEntity.created(URI.create("/compilation")).body(compilationService.addCompilation(compilation));
     }
 
-
     @DeleteMapping("/compilations/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCompilation(@PathVariable Long compId) {
@@ -115,10 +106,21 @@ public class AdminController {
         compilationService.deleteCompilation(compId);
     }
 
-
     @PatchMapping("/compilations/{compId}")
     public ResponseEntity<CompilationDto> updateCompilation(@PathVariable Long compId, @RequestBody UpdateCompilationRequest compil) {
         log.debug("Admin: Вызван метод updateCompilation " + compId);
         return ResponseEntity.ok().body(compilationService.updateCompilation(compId, compil));
+    }
+
+    @DeleteMapping("comments/{userId}/{comId}")
+    public void deleteComment(@PathVariable Long userId, @PathVariable Long comId) {
+        log.info("Private: Вызван метод deleteComment, userId {} {} ", userId, comId);
+        commentService.deleteComment(userId, comId);
+    }
+
+    @PatchMapping("/comments/{comId}")
+    public ResponseEntity<CommentDto> updateComment(@PathVariable Long comId, @Valid @RequestBody CommentDto comment) {
+        log.info("Admin: Вызван метод updateComment {}", comId);
+        return ResponseEntity.created(URI.create("/comments")).body(commentService.updateComment(comId, comment));
     }
 }
