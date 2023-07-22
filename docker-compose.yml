@@ -10,27 +10,53 @@ services:
       - stats-db
     environment:
       - TZ=Europe/Moscow
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/explore-with-me_stats
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/explore-with-me_stats-db
       - SPRING.DATASOURCE.USERNAME=kitty
       - SPRING.DATASOURCE.PASSWORD=purrrrrr
-      - DB_HOST=db
+      - DB_HOST=stats-db
       - DB_PORT=5432
+    restart: on-failure
 
   stats-db:
     image: postgres:14-alpine
     volumes:
-      - /var/lib/shareit/data/
-    container_name: db
+      - /var/lib/explore-with-me/data/
+    container_name: stats-db
     ports:
-      - "6541:5432"
+      - "7575:5432"
     environment:
       - TZ=Europe/Moscow
-      - POSTGRES_DB=explore-with-me_stats
+      - POSTGRES_DB=explore-with-me_stats-db
       - POSTGRES_USER=kitty
       - POSTGRES_PASSWORD=purrrrrr
+    restart: on-failure
 
-  ewm-service:
+  main-service:
     build: main-service
     container_name: main-service
     ports:
       - "8080:8080"
+    depends_on:
+      - main-service-db
+      - stats-server
+    environment:
+      - STATS-SERVER_URL=http://stats-server:9090
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-service-db:5432/explore-with-me_main_bd
+      - POSTGRES_USER=kitty
+      - POSTGRES_PASSWORD=purrrrrr
+      - TZ=Europe/Moscow
+    restart: on-failure
+
+  main-service-db:
+    image: postgres:14-alpine
+    volumes:
+      - /var/lib/explore-with-me/data/
+    container_name: main-service-db
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=explore-with-me_main_bd
+      - POSTGRES_USER=kitty
+      - POSTGRES_PASSWORD=purrrrrr
+      - TZ=Europe/Moscow
+    restart: on-failure
