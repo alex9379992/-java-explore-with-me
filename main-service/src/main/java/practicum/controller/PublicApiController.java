@@ -16,6 +16,7 @@ import ru.practicum.compilation.CompilationDto;
 import ru.practicum.event.EventDto;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -86,7 +87,7 @@ public class PublicApiController {
     public ResponseEntity<CommentDto> addComment(@PathVariable Long eventId, @Valid @RequestBody CommentDto comment,
                                  @PathVariable Long userId) {
         log.info("Private: Вызван метод addComment, userId eventId {} {}", userId, eventId);
-        return ResponseEntity.ok().body(commentService.addComment(eventId, comment, userId));
+        return ResponseEntity.created(URI.create("/comment")).body(commentService.addComment(eventId, comment, userId));
     }
 
     @GetMapping("/comments/all/{userId}")

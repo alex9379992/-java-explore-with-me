@@ -121,6 +121,6 @@ public class AdminController {
     @PatchMapping("/comments/{comId}")
     public ResponseEntity<CommentDto> updateComment(@PathVariable Long comId, @Valid @RequestBody CommentDto comment) {
         log.info("Admin: Вызван метод updateComment {}", comId);
-        return ResponseEntity.created(URI.create("/comments")).body(commentService.updateComment(comId, comment));
+        return ResponseEntity.ok().body(commentService.updateComment(comId, comment));
     }
 }

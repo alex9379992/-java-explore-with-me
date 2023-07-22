@@ -44,7 +44,6 @@ public class CommentServiceImpl implements CommentService {
         if (request.isEmpty()) {
             throw new NotFoundException("Вы не участвовали в данном событии " + eventId);
         }
-
         CommentEntity comment = commentMapper.toEntity(commentDto);
         comment.setAuthor(author);
         comment.setEvent(event);
