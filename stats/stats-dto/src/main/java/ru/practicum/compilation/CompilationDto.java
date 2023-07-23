@@ -2,7 +2,6 @@ package ru.practicum.compilation;
 
 import lombok.Data;
 import ru.practicum.event.EventDto;
-
 import java.util.Set;
 
 @Data

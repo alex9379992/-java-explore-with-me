@@ -8,9 +8,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import practicum.model.EventEntity;
 import ru.practicum.event.State;
-
-
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,15 +43,6 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
                                                @Param("rangeEnd") LocalDateTime rangeEnd, Pageable pageable);
 
     @Query("SELECT e FROM EventEntity e " +
-            "JOIN e.category " +
-            "WHERE e.category.id IN :categories " +
-            "AND e.state IN :states " +
-            "AND e.eventDate BETWEEN:rangeStart AND:rangeEnd")
-    Page<EventEntity> findAllEventsWithoutIdList(@Param("categories") List<Long> categories, @Param("states") List<State> states,
-                                                 @Param("rangeStart") LocalDateTime rangeStart,
-                                                 @Param("rangeEnd") LocalDateTime rangeEnd, Pageable pageable);
-
-    @Query("SELECT e FROM EventEntity e " +
             "JOIN e.initiator " +
             "JOIN e.category " +
             "WHERE e.initiator.id = :userId")
@@ -68,6 +58,5 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
             "WHERE e.category.id = :catId")
     Optional<List<EventEntity>> findAllByCategoryId(Long catId);
 
-    List<EventEntity> findAllByIdIn(Iterable<Long> ids);
-
+    List<EventEntity> findAllByIdIn(Collection<Long> id);
 }

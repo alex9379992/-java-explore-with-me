@@ -1,7 +1,6 @@
 package ru.practicum.category;
 
 import lombok.Data;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;

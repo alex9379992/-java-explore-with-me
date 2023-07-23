@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jdk.jfr.Timestamp;
 import lombok.*;
 import ru.practicum.event.State;
-
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 

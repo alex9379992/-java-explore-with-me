@@ -12,7 +12,7 @@ import practicum.repository.EventRepository;
 import practicum.repository.ParticipationRequestsRepository;
 import practicum.repository.UserRepository;
 import practicum.service.RequestService;
-import practicum.util.ParticipationRequestMapper;
+import practicum.mappers.ParticipationRequestMapper;
 import ru.practicum.event.State;
 import ru.practicum.request.EventRequestStatusUpdateRequest;
 import ru.practicum.request.EventRequestStatusUpdateResult;
@@ -123,20 +123,14 @@ public class ParticipationRequestsServiceImpl implements RequestService {
         if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
             throw new AlreadyExistsException("Превышен лимит подтвержденных заявок " + eventId);
         }
-
         List<Long> requestIds = request.getRequestIds();
-
         String status = request.getStatus();
-
         List<ParticipationRequestEntity> requests = requestIds.stream().map((id) -> participationRequestsRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Такой заявки нет "
                         + id))).collect(Collectors.toList());
-
         List<ParticipationRequestEntity> confirmedRequests = new ArrayList<>();
         List<ParticipationRequestEntity> rejectedRequests = new ArrayList<>();
-
         List<ParticipationRequestEntity> updatedRequests = new ArrayList<>();
-
         for (ParticipationRequestEntity req : requests) {
             if (status.equals("CONFIRMED") && req.getState().equals(State.PENDING)) {
                 if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
@@ -155,13 +149,10 @@ public class ParticipationRequestsServiceImpl implements RequestService {
                 rejectedRequests.add(req);
             }
         }
-
         participationRequestsRepository.saveAll(updatedRequests);
         eventsRepository.save(event);
-
         List<ParticipationRequestDto> con = confirmedRequests.stream().map(participationRequestMapper::toDto).collect(Collectors.toList());
         List<ParticipationRequestDto> rej = rejectedRequests.stream().map(participationRequestMapper::toDto).collect(Collectors.toList());
-
         return participationRequestMapper.toUpdateResult(con, rej);
     }
 }

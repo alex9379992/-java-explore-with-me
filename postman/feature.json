@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "ff04cc22-4ce3-453e-9da7-e271c854bd7c",
+		"_postman_id": "5bd86c77-6cea-4c24-8e53-2672a4901b9d",
 		"name": "Feature tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "23073541"
+		"_exporter_id": "26784396"
 	},
 	"item": [
 		{
@@ -275,7 +275,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{ \"annotation\": \"Шоу мыльных пузырей!!!\",\r\n    \"category\": 1,\r\n    \"description\": \"Шоу мыльных пузырей - мечта взрослых и детей!\",\r\n    \"eventDate\": \"2023-07-25 15:00:00\",\r\n    \"location\": {\r\n        \"lat\": 43.7602,\r\n        \"lon\": -22.3102\r\n    },\r\n    \"paid\": true,\r\n    \"participantLimit\": 30,\r\n    \"requestModeration\": false,\r\n    \"title\": \"Новое выступление мастера мыльных пузырей\"\r\n    }"
+					"raw": "{ \"annotation\": \"Шоу мыльных пузырей!!!\",\r\n    \"category\": 120,\r\n    \"description\": \"Шоу мыльных пузырей - мечта взрослых и детей!\",\r\n    \"eventDate\": \"2023-07-25 15:00:00\",\r\n    \"location\": {\r\n        \"lat\": 43.7602,\r\n        \"lon\": -22.3102\r\n    },\r\n    \"paid\": true,\r\n    \"participantLimit\": 30,\r\n    \"requestModeration\": false,\r\n    \"title\": \"Новое выступление мастера мыльных пузырей\"\r\n    }"
 				},
 				"url": {
 					"raw": "http://localhost:8080/users/:userId/events",
@@ -371,7 +371,7 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "106"
 						}
 					]
 				}
@@ -430,7 +430,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/users/:userId/requests?eventId=:eventId",
+					"raw": "http://localhost:8080/users/:userId/requests?eventId=106",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -444,13 +444,13 @@
 					"query": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "106"
 						}
 					],
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "135"
 						}
 					]
 				}
@@ -522,11 +522,11 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "106"
 						},
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "135"
 						}
 					]
 				}
@@ -823,7 +823,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{ \"annotation\": \"Кукольный театр. Для взрослых и детей.\",\r\n    \"category\": 1,\r\n    \"description\": \"Спектакль Лиса и Журавль\",\r\n    \"eventDate\": \"2023-06-05 12:15:00\",\r\n    \"location\": {\r\n        \"lat\": 43.7602,\r\n        \"lon\": -22.3102\r\n    },\r\n    \"paid\": true,\r\n    \"participantLimit\": 100,\r\n    \"requestModeration\": false,\r\n    \"title\": \"Новое прочтение старой сказки\"\r\n    }"
+					"raw": "{ \"annotation\": \"Кукольный театр. Для взрослых и детей.\",\r\n    \"category\": 1,\r\n    \"description\": \"Спектакль Лиса и Журавль\",\r\n    \"eventDate\": \"2023-08-05 12:15:00\",\r\n    \"location\": {\r\n        \"lat\": 43.7602,\r\n        \"lon\": -22.3102\r\n    },\r\n    \"paid\": true,\r\n    \"participantLimit\": 100,\r\n    \"requestModeration\": false,\r\n    \"title\": \"Новое прочтение старой сказки\"\r\n    }"
 				},
 				"url": {
 					"raw": "http://localhost:8080/users/:userId/events",
@@ -840,7 +840,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "135"
 						}
 					]
 				}
@@ -919,7 +919,7 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "3"
+							"value": "107"
 						}
 					]
 				}
@@ -1108,7 +1108,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/users/:userId/requests?eventId=:eventId",
+					"raw": "http://localhost:8080/users/:userId/requests?eventId=107",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1122,13 +1122,13 @@
 					"query": [
 						{
 							"key": "eventId",
-							"value": "2"
+							"value": "107"
 						}
 					],
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "136"
 						}
 					]
 				}
@@ -1187,7 +1187,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/users/:userId/requests?eventId=:eventId",
+					"raw": "http://localhost:8080/users/:userId/requests?eventId=106",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1201,13 +1201,13 @@
 					"query": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "106"
 						}
 					],
 					"variable": [
 						{
 							"key": "userId",
-							"value": "3"
+							"value": "137"
 						}
 					]
 				}
@@ -1215,7 +1215,7 @@
 			"response": []
 		},
 		{
-			"name": "Добавление валидного комментария к событию 2 пользователя 1",
+			"name": "Добавление валидного комментария к событию 2 пользователя 2",
 			"event": [
 				{
 					"listen": "test",
@@ -1279,11 +1279,11 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "2"
+							"value": "107"
 						},
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "136"
 						}
 					]
 				}
@@ -1355,11 +1355,11 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "106"
 						},
 						{
 							"key": "userId",
-							"value": "3"
+							"value": "137"
 						}
 					]
 				}
@@ -1430,7 +1430,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "3"
+							"value": "137"
 						}
 					]
 				}
