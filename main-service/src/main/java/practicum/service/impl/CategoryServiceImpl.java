@@ -10,7 +10,7 @@ import practicum.model.EventEntity;
 import practicum.repository.CategoryRepository;
 import practicum.repository.EventRepository;
 import practicum.service.CategoriesService;
-import practicum.util.CategoryMapper;
+import practicum.mappers.CategoryMapper;
 import ru.practicum.category.CategoryDto;
 import javax.transaction.Transactional;
 import java.util.List;

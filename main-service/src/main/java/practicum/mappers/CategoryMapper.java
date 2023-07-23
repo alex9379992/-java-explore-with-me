@@ -1,10 +1,10 @@
-package practicum.util;
+package practicum.mappers;
 
 import practicum.model.CategoryEntity;
 import ru.practicum.category.CategoryDto;
 
-
 public class CategoryMapper {
+
 
     public CategoryDto toDto(CategoryEntity categoryEntity) {
         CategoryDto categoryDto = new CategoryDto();

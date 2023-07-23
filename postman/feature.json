@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "40666cfc-efd9-4523-8197-84d04fa7267f",
+		"_postman_id": "5bd86c77-6cea-4c24-8e53-2672a4901b9d",
 		"name": "Feature tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "26784396"
@@ -275,7 +275,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{ \"annotation\": \"Шоу мыльных пузырей!!!\",\r\n    \"category\": 1,\r\n    \"description\": \"Шоу мыльных пузырей - мечта взрослых и детей!\",\r\n    \"eventDate\": \"2023-07-25 15:00:00\",\r\n    \"location\": {\r\n        \"lat\": 43.7602,\r\n        \"lon\": -22.3102\r\n    },\r\n    \"paid\": true,\r\n    \"participantLimit\": 30,\r\n    \"requestModeration\": false,\r\n    \"title\": \"Новое выступление мастера мыльных пузырей\"\r\n    }"
+					"raw": "{ \"annotation\": \"Шоу мыльных пузырей!!!\",\r\n    \"category\": 120,\r\n    \"description\": \"Шоу мыльных пузырей - мечта взрослых и детей!\",\r\n    \"eventDate\": \"2023-07-25 15:00:00\",\r\n    \"location\": {\r\n        \"lat\": 43.7602,\r\n        \"lon\": -22.3102\r\n    },\r\n    \"paid\": true,\r\n    \"participantLimit\": 30,\r\n    \"requestModeration\": false,\r\n    \"title\": \"Новое выступление мастера мыльных пузырей\"\r\n    }"
 				},
 				"url": {
 					"raw": "http://localhost:8080/users/:userId/events",
@@ -371,7 +371,7 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "106"
 						}
 					]
 				}
@@ -430,7 +430,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/users/:userId/requests?eventId=1",
+					"raw": "http://localhost:8080/users/:userId/requests?eventId=106",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -444,13 +444,13 @@
 					"query": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "106"
 						}
 					],
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "135"
 						}
 					]
 				}
@@ -522,11 +522,11 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "106"
 						},
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "135"
 						}
 					]
 				}
@@ -840,7 +840,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "135"
 						}
 					]
 				}
@@ -919,7 +919,7 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "2"
+							"value": "107"
 						}
 					]
 				}
@@ -1108,7 +1108,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/users/:userId/requests?eventId=2",
+					"raw": "http://localhost:8080/users/:userId/requests?eventId=107",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1122,13 +1122,13 @@
 					"query": [
 						{
 							"key": "eventId",
-							"value": "2"
+							"value": "107"
 						}
 					],
 					"variable": [
 						{
 							"key": "userId",
-							"value": "2"
+							"value": "136"
 						}
 					]
 				}
@@ -1187,7 +1187,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/users/:userId/requests?eventId=1",
+					"raw": "http://localhost:8080/users/:userId/requests?eventId=106",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1201,13 +1201,13 @@
 					"query": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "106"
 						}
 					],
 					"variable": [
 						{
 							"key": "userId",
-							"value": "3"
+							"value": "137"
 						}
 					]
 				}
@@ -1279,11 +1279,11 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "2"
+							"value": "107"
 						},
 						{
 							"key": "userId",
-							"value": "2"
+							"value": "136"
 						}
 					]
 				}
@@ -1355,11 +1355,11 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "106"
 						},
 						{
 							"key": "userId",
-							"value": "3"
+							"value": "137"
 						}
 					]
 				}
@@ -1430,7 +1430,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "3"
+							"value": "137"
 						}
 					]
 				}

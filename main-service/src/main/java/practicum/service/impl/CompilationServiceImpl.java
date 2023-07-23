@@ -11,7 +11,7 @@ import practicum.model.EventEntity;
 import practicum.repository.CompilationRepository;
 import practicum.repository.EventRepository;
 import practicum.service.CompilationService;
-import practicum.util.CompilationMapper;
+import practicum.mappers.CompilationMapper;
 import ru.practicum.compilation.CompilationDto;
 import ru.practicum.compilation.NewCompilationDto;
 import ru.practicum.compilation.UpdateCompilationRequest;
@@ -52,8 +52,8 @@ public class CompilationServiceImpl implements CompilationService {
             return compilationMapper.toDto(savedCompilation);
         }
         CompilationEntity fromDto = compilationMapper.toEntity(compilation);
-        CompilationEntity savedCompil = compilationRepository.save(fromDto);
-        return compilationMapper.toDto(savedCompil);
+        CompilationEntity savedCompilation = compilationRepository.save(fromDto);
+        return compilationMapper.toDto(savedCompilation);
     }
 
     @Transactional

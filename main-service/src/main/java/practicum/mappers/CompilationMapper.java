@@ -1,4 +1,4 @@
-package practicum.util;
+package practicum.mappers;
 
 import practicum.model.CompilationEntity;
 import ru.practicum.compilation.CompilationDto;

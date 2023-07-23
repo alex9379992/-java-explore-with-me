@@ -10,7 +10,7 @@ import practicum.exception.NotFoundException;
 import practicum.model.UserEntity;
 import practicum.repository.UserRepository;
 import practicum.service.UserService;
-import practicum.util.UserMapper;
+import practicum.mappers.UserMapper;
 import ru.practicum.user.UserDto;
 import java.util.Comparator;
 import java.util.List;

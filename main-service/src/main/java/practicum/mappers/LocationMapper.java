@@ -1,4 +1,4 @@
-package practicum.util;
+package practicum.mappers;
 
 import practicum.model.LocationEntity;
 import ru.practicum.event.LocationDto;

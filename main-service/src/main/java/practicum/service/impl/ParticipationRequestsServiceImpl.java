@@ -12,7 +12,7 @@ import practicum.repository.EventRepository;
 import practicum.repository.ParticipationRequestsRepository;
 import practicum.repository.UserRepository;
 import practicum.service.RequestService;
-import practicum.util.ParticipationRequestMapper;
+import practicum.mappers.ParticipationRequestMapper;
 import ru.practicum.event.State;
 import ru.practicum.request.EventRequestStatusUpdateRequest;
 import ru.practicum.request.EventRequestStatusUpdateResult;

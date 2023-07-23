@@ -1,4 +1,4 @@
-package practicum.util;
+package practicum.mappers;
 
 import practicum.model.UserEntity;
 import ru.practicum.user.UserDto;

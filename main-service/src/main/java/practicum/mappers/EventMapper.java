@@ -1,4 +1,4 @@
-package practicum.util;
+package practicum.mappers;
 
 import practicum.model.EventEntity;
 import ru.practicum.event.EventDto;

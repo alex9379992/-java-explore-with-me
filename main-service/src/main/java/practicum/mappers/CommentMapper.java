@@ -1,4 +1,4 @@
-package practicum.util;
+package practicum.mappers;
 
 import practicum.model.CommentEntity;
 import ru.practicum.comment.CommentDto;

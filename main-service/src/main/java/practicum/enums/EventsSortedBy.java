@@ -1,4 +1,4 @@
-package practicum.util;
+package practicum.enums;
 
 public enum EventsSortedBy {
     EVENT_DATE

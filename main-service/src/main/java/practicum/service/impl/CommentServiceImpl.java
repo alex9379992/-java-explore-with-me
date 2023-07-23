@@ -12,7 +12,7 @@ import practicum.repository.EventRepository;
 import practicum.repository.ParticipationRequestsRepository;
 import practicum.repository.UserRepository;
 import practicum.service.CommentService;
-import practicum.util.CommentMapper;
+import practicum.mappers.CommentMapper;
 import ru.practicum.comment.CommentDto;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;

@@ -1,6 +1,6 @@
 package practicum.service;
 
-import practicum.util.EventsSortedBy;
+import practicum.enums.EventsSortedBy;
 import ru.practicum.event.EventDto;
 import ru.practicum.event.NewEventDto;
 import ru.practicum.event.UpdateEventRequest;
